@@ -61,7 +61,7 @@ def main():
     lr = 0.0001
     epoch = 50
     print_freq = 10
-    model_prefix = 'logistic_regression'
+    model_prefix = 'weights/logistic_regression'
     if not os.path.isdir(model_prefix):
         os.makedirs(model_prefix)
 
