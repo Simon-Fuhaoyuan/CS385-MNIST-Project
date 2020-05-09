@@ -1,7 +1,7 @@
-# Dataset
+# Dataset and other helper files
 MNIST/
 Project 1.pdf
-logistic_regression/
+weights/
 log/
 
 # Byte-compiled / optimized / DLL files
