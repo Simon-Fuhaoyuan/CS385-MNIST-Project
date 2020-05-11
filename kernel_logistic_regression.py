@@ -2,6 +2,7 @@ import numpy as np
 from math import log, exp
 from MnistData import load_mnist_by_class
 import os
+from tqdm import tqdm
 
 TRAIN_SAMPLES = 1000
 TEST_SAMPLES = 1000
@@ -56,7 +57,7 @@ def construct_kernel_matrix(x, kernel_function='rbf', sigma=1, d=2):
     n_samples = x.shape[0]
     kernel = np.zeros((n_samples, n_samples))
     if kernel_function == 'rbf':
-        for i in range(n_samples):
+        for i in tqdm(range(n_samples)):
             for j in range(i, n_samples):
                 norm = np.linalg.norm(x[i] - x[j]) ** 2
                 value = exp(-1 * norm / (2 * (sigma ** 2)))
@@ -64,7 +65,7 @@ def construct_kernel_matrix(x, kernel_function='rbf', sigma=1, d=2):
                 kernel[j][i] = value
     
     elif kernel_function == 'poly':
-        for i in range(n_samples):
+        for i in tqdm(range(n_samples)):
             for j in range(i, n_samples):
                 norm = (x[i] * x[j]).sum()
                 value = norm ** d
@@ -72,7 +73,7 @@ def construct_kernel_matrix(x, kernel_function='rbf', sigma=1, d=2):
                 kernel[j][i] = value
 
     elif kernel_function == 'cos':
-        for i in range(n_samples):
+        for i in tqdm(range(n_samples)):
             for j in range(i, n_samples):
                 norm1 = np.linalg.norm(x[i])
                 norm2 = np.linalg.norm(x[j])
@@ -112,7 +113,7 @@ def main():
     print('Data preparation complete!')
 
     # hyper parameters
-    lr = 0.001
+    lr = 0.0001
     epoch = 50
     print_freq = 10
     regular = 0.25
