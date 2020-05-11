@@ -70,6 +70,12 @@ def statistic(path='MNIST'):
     print('Train total:', train_sta)
     print('Test total:', test_sta)
 
+def load_mnist_by_class(digit, count, path='MNIST', kind='train'):
+    x, y = load_mnist(path=path, kind=kind)
+    x = x[y == digit][:int(count)]
+    y = y[y == digit][:int(count)]
+
+    return x, y
 
 if __name__ == "__main__":
     visualize()
