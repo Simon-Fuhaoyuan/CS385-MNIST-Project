@@ -6,8 +6,9 @@ def accuracy(output, target, meta=None, fp=None):
     '''
     n_correct = 0
     cnt = 0
+    output = output.cpu().detach().numpy()
 
-    for i in range(len(acc)):
+    for i in range(target.shape[0]):
         one_hot = output[i]
         max_cat = np.argmax(one_hot)
         cnt += 1

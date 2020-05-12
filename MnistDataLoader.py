@@ -51,7 +51,6 @@ class Mnist(Dataset):
         if self.resolution != 28:
             img = img.resize((self.resolution, self.resolution))
         img = np.array(img)
-
         img = np.resize(img, (self.resolution, self.resolution, 1))
         img = self.transforms(img)
         
