@@ -54,9 +54,9 @@ class Mnist(Dataset):
         img = np.resize(img, (self.resolution, self.resolution, 1))
         img = self.transforms(img)
 
-        one_hot = np.zeros(10)
+        one_hot = torch.zeros(10)
         one_hot[lbl] = 1
-        one_hot = self.transforms(one_hot)
+        one_hot = one_hot.double()
         
         return img, lbl, one_hot, idx
     
