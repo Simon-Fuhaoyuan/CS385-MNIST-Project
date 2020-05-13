@@ -4,3 +4,4 @@ from __future__ import print_function
 
 import models.vgg11
 import models.NaiveNet
+import models.VeryNaiveNet
