@@ -51,6 +51,6 @@ def make_layers(cfg, batch_norm=False):
 cfg = [32, 'M', 64, 'M']
 
 def get_CNN(in_channels=1):
-    model = NaiveNet(make_layers(cfg))
+    model = VeryNaiveNet(make_layers(cfg))
 
     return model
