@@ -57,7 +57,7 @@ class Mnist(Dataset):
         if self.cfg.loss == 'mse':
             one_hot = np.zeros(10)
             one_hot[lbl] = 1
-            lbl = one_hot.float()
+            lbl = one_hot.astype(np.float)
         
         return img, lbl, idx
     
