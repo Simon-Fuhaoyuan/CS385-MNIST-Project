@@ -56,7 +56,7 @@ class Mnist(Dataset):
 
         one_hot = torch.zeros(10)
         one_hot[lbl] = 1
-        one_hot = one_hot.double()
+        one_hot = one_hot.float()
         
         return img, lbl, one_hot, idx
     
