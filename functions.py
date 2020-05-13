@@ -26,11 +26,11 @@ def train(config, net, device, train_loader, crit, optimizer, epoch):
     for i, (img, label, one_hot, _) in enumerate(train_loader):
         img = img.to(device)
         if config.loss == 'crossentropy':
-            label = label.long().to(device)
+            gt = label.long().to(device)
         else:
-            label = one_hot.to(device)
+            gt = one_hot.to(device)
         output = net(img)
-        loss = crit(output, label)
+        loss = crit(output, gt)
         loss_train += loss.item()
 
         if i % config.print_freq == 0:

@@ -56,7 +56,7 @@ class Mnist(Dataset):
 
         one_hot = np.zeros(10)
         one_hot[lbl] = 1
-        one_hot = one_hot.astype(np.float32)
+        one_hot = self.transforms(one_hot)
         
         return img, lbl, one_hot, idx
     
