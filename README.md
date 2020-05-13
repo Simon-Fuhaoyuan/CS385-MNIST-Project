@@ -22,4 +22,7 @@ The following are the traditional (not CNN-based) methods that I have implemente
 
 The following are CNN architectures that I have implemented using [pytorch](https://pytorch.org) package.
 
+* VGG11
+* NaiveNet (which consists of 2 conv layers and two fc layers)
+
 Keep updating...
