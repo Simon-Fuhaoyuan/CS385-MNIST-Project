@@ -53,6 +53,11 @@ class Mnist(Dataset):
         img = np.array(img)
         img = np.resize(img, (self.resolution, self.resolution, 1))
         img = self.transforms(img)
+
+        if self.cfg.loss == 'mse':
+            one_hot = np.zeros(10)
+            one_hot[lbl] = 1
+            lbl = one_hot.float()
         
         return img, lbl, idx
     
