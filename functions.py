@@ -23,9 +23,12 @@ logging.basicConfig(
 
 def train(config, net, device, train_loader, crit, optimizer, epoch):
     loss_train = 0.0
-    for i, (img, label, _) in enumerate(train_loader):
+    for i, (img, label, one_hot, _) in enumerate(train_loader):
         img = img.to(device)
-        label = label.long().to(device)
+        if config.loss == 'crossentropy':
+            label = label.long().to(device)
+        else:
+            label = one_hot.to(device)
         output = net(img)
         loss = crit(output, label)
         loss_train += loss.item()
@@ -44,7 +47,7 @@ def train(config, net, device, train_loader, crit, optimizer, epoch):
 def test(config, net, device, test_loader, epoch):
     total_correct = 0
     total_cnt = 0
-    for i, (img, label, _) in enumerate(test_loader):
+    for i, (img, label, _1, _2) in enumerate(test_loader):
         img = img.to(device)
         pred = net(img)
         n_correct, cnt = accuracy(pred, label)
