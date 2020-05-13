@@ -12,7 +12,7 @@ import torch.optim as optim
 from MnistDataLoader import Mnist
 from evaluate import accuracy
 import models
-from functions import train, test
+from functions import train, test, get_criterion
 
 
 ch = logging.StreamHandler(sys.stdout)
@@ -28,6 +28,8 @@ def parser_args():
     parser.add_argument('--batch_size', help='Batch size', default=32, type=int)
     parser.add_argument('--resolution', help='Resolution of sparse tensor', default=224, type=int)
     parser.add_argument('--in_channel', help='Input image channel', default=1, type=int)
+    parser.add_argument('--loss', help='The loss function', default='crossentropy', type=str)
+    parser.add_argument('--final_layer', help='The final layer of CNN', default='softmax', type=str)
     parser.add_argument('--lr', help='The learning rate', default=0.001, type=float)
     parser.add_argument('--root', help='The initial dataset root', default='./Mnist', type=str)
     parser.add_argument('--weight', help='The weight folder', default='./weights', type=str)
@@ -49,7 +51,9 @@ def main(net, dataloader, device, config):
         weight_decay=config.weight_decay)
     scheduler = optim.lr_scheduler.ExponentialLR(optimizer, 0.95)
 
-    crit = nn.CrossEntropyLoss().to(device)
+    crit = get_criterion(config)
+    crit = crit.to(device)
+    
     if not os.path.isdir(config.weight):
         os.makedirs(config.weight)
     checkpoint = os.path.join(config.weight, config.model + '.pth')
@@ -88,7 +92,7 @@ if __name__ == '__main__':
     logging.info(config)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    net = eval('models.' + config.model + '.get_CNN')(config.in_channel)
+    net = eval('models.' + config.model + '.get_CNN')(config)
     net.to(device)
 
     logging.info(net)

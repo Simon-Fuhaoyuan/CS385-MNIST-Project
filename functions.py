@@ -56,3 +56,15 @@ def test(config, net, device, test_loader, epoch):
             )
     
     return total_correct / total_cnt
+
+def get_criterion(config):
+    if config.loss == 'crossentropy':
+        crit = nn.CrossEntropyLoss()
+    elif config.loss == 'mse':
+        crit = nn.MSELoss(reduction='mean')
+    else:
+        logging.info(f'Error: No match criterion')
+        exit()
+
+    return crit
+    

@@ -4,8 +4,9 @@ import torch.nn as nn
 
 class VGG11(nn.Module):
 
-    def __init__(self, features, num_classes=10, init_weights=True):
+    def __init__(self, features, opt, num_classes=10, init_weights=True):
         super(VGG11, self).__init__()
+        self.opt = opt
         self.features = features
         self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
         self.classifier = nn.Sequential(
@@ -17,6 +18,11 @@ class VGG11(nn.Module):
             nn.Dropout(),
             nn.Linear(4096, num_classes),
         )
+        self.final_layer = None
+        if self.opt.final_layer == 'softmax':
+            self.final_layer = nn.Softmax(dim=1)
+        else:
+            self.final_layer = nn.Sigmoid()
         if init_weights:
             self._initialize_weights()
 
@@ -25,6 +31,8 @@ class VGG11(nn.Module):
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.classifier(x)
+        if self.opt.loss != 'crossentropy':
+            x = self.final_layer(x)
         return x
 
     def _initialize_weights(self):
@@ -41,9 +49,9 @@ class VGG11(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
 
-def make_layers(cfg, batch_norm=False):
+def make_layers(cfg, opt, batch_norm=False):
     layers = []
-    in_channels = 1
+    in_channels = opt.in_channel
     for v in cfg:
         if v == 'M':
             layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
@@ -64,17 +72,7 @@ cfgs = {
     'E': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
 }
 
-def _vgg(arch, cfg, batch_norm, pretrained, progress, **kwargs):
-    if pretrained:
-        kwargs['init_weights'] = False
-    model = VGG(make_layers(cfgs[cfg], batch_norm=batch_norm), **kwargs)
-    if pretrained:
-        state_dict = load_state_dict_from_url(model_urls[arch],
-                                              progress=progress)
-        model.load_state_dict(state_dict)
-    return model
-
-def get_CNN(in_channels):
-    model = VGG11(make_layers(cfgs['A']))
+def get_CNN(opt):
+    model = VGG11(make_layers(cfgs['A'], opt), opt)
 
     return model

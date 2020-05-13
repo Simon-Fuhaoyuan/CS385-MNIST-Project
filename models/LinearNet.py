@@ -4,15 +4,23 @@ import torch.nn as nn
 
 class LinearNet(nn.Module):
 
-    def __init__(self, num_classes=10, init_weights=True):
+    def __init__(self, opt, num_classes=10, init_weights=True):
         super(LinearNet, self).__init__()
+        self.opt = opt
         self.classifier = nn.Linear(1 * 28 * 28, num_classes)
+        self.final_layer = None
+        if self.opt.final_layer == 'softmax':
+            self.final_layer = nn.Softmax(dim=1)
+        else:
+            self.final_layer = nn.Sigmoid()
         if init_weights:
             self._initialize_weights()
 
     def forward(self, x):
         x = torch.flatten(x, 1)
         x = self.classifier(x)
+        if self.opt.loss != 'crossentropy':
+            x = self.final_layer(x)
         return x
 
     def _initialize_weights(self):
@@ -29,7 +37,7 @@ class LinearNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
 
-def get_CNN(in_channels=1):
-    model = LinearNet()
+def get_CNN(opt):
+    model = LinearNet(opt)
 
     return model
