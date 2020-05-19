@@ -76,9 +76,9 @@ class Mnist(Dataset):
             y = np.resize(y, (self.resolution, self.resolution, 1))
             img = np.concatenate((img, x, y), axis=2)
             np.random.shuffle(img)
-            img = img.float()
 
         img = self.transforms(img)
+        img = img.float()
 
         one_hot = torch.zeros(10)
         one_hot[lbl] = 1
