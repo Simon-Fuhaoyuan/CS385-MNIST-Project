@@ -67,6 +67,17 @@ class Mnist(Dataset):
                 for j in range(block_num):
                     img[i*block_size:(i+1)*block_size, j*block_size:(j+1)*block_size] = buffer[block_num * i + j]
 
+        elif self.cfg.exp2:
+            assert self.cfg.in_channel == 3, 'In exp1, the input channel should be 3, but get %d' % (self.cfg.in_channel)
+            new_img = np.zeros((self.resolution, self.resolution, 3))
+            new_img[:, :, 0] = img
+            for i in range(self.resolution):
+                for j in range(self.resolution):
+                    new_img[i, j, 1] = i
+                    new_img[i, j, 2] = j
+            img = new_img
+            np.random.shuffle(img)
+
         img = self.transforms(img)
 
         one_hot = torch.zeros(10)
