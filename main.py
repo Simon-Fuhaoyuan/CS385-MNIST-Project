@@ -30,7 +30,7 @@ def parser_args():
     parser.add_argument('--in_channel', help='Input image channel', default=1, type=int)
     parser.add_argument('--loss', help='The loss function', default='crossentropy', type=str)
     parser.add_argument('--final_layer', help='The final layer of CNN', default='softmax', type=str)
-    parser.add_argument('--lr', help='The learning rate', default=0.001, type=float)
+    parser.add_argument('--lr', help='The learning rate', default=0.01, type=float)
     parser.add_argument('--root', help='The initial dataset root', default='./Mnist', type=str)
     parser.add_argument('--weight', help='The weight folder', default='./weights', type=str)
     parser.add_argument('--model', help='The architecture of CNN', default='vgg11', type=str)

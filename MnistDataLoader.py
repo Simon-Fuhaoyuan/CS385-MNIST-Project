@@ -56,13 +56,16 @@ class Mnist(Dataset):
         if self.cfg.exp1:
             assert self.cfg.in_channel == 1, 'In exp1, the input channel should be 1, but get %d' % (self.cfg.in_channel)
             buffer = []
-            for i in range(4):
-                for j in range(4):
-                    buffer.append(img[i*7:(i+1)*7, j*7:(j+1)*7])
+            block_num = 4
+            assert self.resolution % block_num == 0, 'Resolution is not dividable by block number (%d)' % (block_num)
+            block_size = self.resolution // block_num
+            for i in range(block_num):
+                for j in range(block_num):
+                    buffer.append(img[i*block_size:(i+1)*block_size, j*block_size:(j+1)*block_size])
             random.shuffle(buffer)
-            for i in range(4):
-                for j in range(4):
-                    img[i*7:(i+1)*7, j*7:(j+1)*7] = buffer[4 * i + j]
+            for i in range(block_num):
+                for j in range(block_num):
+                    img[i*block_size:(i+1)*block_size, j*block_size:(j+1)*block_size] = buffer[block_num * i + j]
 
         img = self.transforms(img)
 
