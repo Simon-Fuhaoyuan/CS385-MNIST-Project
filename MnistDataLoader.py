@@ -69,13 +69,12 @@ class Mnist(Dataset):
 
         elif self.cfg.exp2:
             assert self.cfg.in_channel == 3, 'In exp1, the input channel should be 3, but get %d' % (self.cfg.in_channel)
-            new_img = np.zeros((self.resolution, self.resolution, 3))
-            new_img[:, :, 0] = img
-            for i in range(self.resolution):
-                for j in range(self.resolution):
-                    new_img[i, j, 1] = i
-                    new_img[i, j, 2] = j
-            img = new_img
+            y = np.arange(self.resolution)
+            y = np.tile(y, (self.resolution, self.resolution))
+            x = y.T
+            x = np.resize(x, (self.resolution, self.resolution, 1))
+            y = np.resize(y, (self.resolution, self.resolution, 1))
+            img = np.concatenate((img, x, y), axis=2)
             np.random.shuffle(img)
 
         img = self.transforms(img)
@@ -88,14 +87,22 @@ class Mnist(Dataset):
     
 
 if __name__ == "__main__":
-    x, y = load_mnist()
-    img = x[0]
-    img = np.resize(img, (28, 28)).astype(np.uint8)
-    img = Image.fromarray(img)
-    img = img.resize((224, 224))
-    img.show()
+    # x, y = load_mnist()
+    # img = x[0]
+    # img = np.resize(img, (28, 28)).astype(np.uint8)
+    # img = Image.fromarray(img)
+    # img = img.resize((224, 224))
+    # img.show()
     # img = np.array(img)
     # img = np.resize(img, (128, 128, 1))
     # transform = transforms.ToTensor()
     # img = transform(img)
     # print(img.shape)
+    resolution = 28
+    a = np.arange(resolution)
+    a = np.tile(a, (resolution, resolution))
+    b = a.T
+    a = np.resize(a, (resolution, resolution, 1))
+    b = np.resize(b, (resolution, resolution, 1))
+    c = np.concatenate((a, b), axis=2)
+    print(c.shape)
