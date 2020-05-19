@@ -52,6 +52,18 @@ class Mnist(Dataset):
             img = img.resize((self.resolution, self.resolution))
         img = np.array(img)
         img = np.resize(img, (self.resolution, self.resolution, 1))
+
+        if self.cfg.exp1:
+            assert self.cfg.in_channel == 1, 'In exp1, the input channel should be 1, but get %d' % (self.cfg.in_channel)
+            buffer = []
+            for i in range(4):
+                for j in range(4):
+                    buffer.append(img[i*7:(i+1)*7, j*7:(j+1)*7])
+            random.shuffle(buffer)
+            for i in range(4):
+                for j in range(4):
+                    img[i*7:(i+1)*7, j*7:(j+1)*7] = buffer[4 * i + j]
+
         img = self.transforms(img)
 
         one_hot = torch.zeros(10)

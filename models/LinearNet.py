@@ -7,7 +7,7 @@ class LinearNet(nn.Module):
     def __init__(self, opt, num_classes=10, init_weights=True):
         super(LinearNet, self).__init__()
         self.opt = opt
-        self.classifier = nn.Linear(1 * 28 * 28, num_classes)
+        self.classifier = nn.Linear(self.opt.in_channel * 28 * 28, num_classes)
         self.final_layer = None
         if self.opt.final_layer == 'softmax':
             self.final_layer = nn.Softmax(dim=1)

@@ -38,8 +38,19 @@ def parser_args():
     parser.add_argument('--print_freq', help='Number of iterations to print', default=200, type=int)
     parser.add_argument('--weight_decay', default=1e-4, type=float)
     parser.add_argument('--momentum', default=0.9, type=float)
-    args = parser.parse_args()
+    # experiment options
+    parser.add_argument(
+        '--exp1', 
+        help='Partition input image into a few blocks, then random shuffle each block', 
+        action='store_true',
+        )
+    parser.add_argument(
+        '--exp2', 
+        help='Add x and y coordinates to each pixel to let image be 28 * 28 * 3, then random shuffle each pixel', 
+        action='store_true',
+        )
 
+    args = parser.parse_args()
     return args
 
 def main(net, dataloader, device, config):
