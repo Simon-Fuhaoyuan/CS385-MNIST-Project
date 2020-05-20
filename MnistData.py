@@ -52,7 +52,8 @@ def visualize(path='MNIST'):
     ax[0].set_xticks([])
     ax[0].set_yticks([])
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    plt.savefig('images/test.png')
 
 def statistic(path='MNIST'):
     x_train, y_train = load_mnist(path=path)
