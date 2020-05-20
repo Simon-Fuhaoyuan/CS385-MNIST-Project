@@ -6,3 +6,4 @@ import models.vgg11
 import models.NaiveNet
 import models.VeryNaiveNet
 import models.LinearNet
+import models.GAN
