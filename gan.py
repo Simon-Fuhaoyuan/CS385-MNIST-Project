@@ -5,6 +5,10 @@ import logging
 import numpy as np
 from time import time
 
+import matplotlib
+matplotlib.use('AGG')
+import matplotlib.pyplot as plt
+
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
@@ -35,11 +39,44 @@ def parser_args():
     parser.add_argument('--weight', help='The weight folder', default='./weights', type=str)
     parser.add_argument('--workers', help='Number of workers when loading data', default=4, type=int)
     parser.add_argument('--print_freq', help='Number of iterations to print', default=200, type=int)
+    parser.add_argument('--root', help='The initial dataset root', default='./Mnist', type=str)
     parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
     parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
+    # experiment options
+    parser.add_argument(
+        '--exp1', 
+        help='Partition input image into a few blocks, then random shuffle each block', 
+        action='store_true',
+        )
+    parser.add_argument(
+        '--exp2', 
+        help='Add x and y coordinates to each pixel to let image be 28 * 28 * 3, then random shuffle each pixel', 
+        action='store_true',
+        )
 
     args = parser.parse_args()
     return args
+
+def save_image(imgs, epoch):
+    imgs = imgs.detach().cpu().numpy()
+    imgs = imgs * 255
+    fig, ax = plt.subplots(
+        nrows=5,
+        ncols=5,
+        sharex=True,
+        sharey=True, )
+
+    ax = ax.flatten()
+    for i in range(25):
+        img = imgs[i].reshape(28, 28).astype(np.uint8)
+        ax[i].imshow(img, cmap='Greys', interpolation='nearest')
+
+    ax[0].set_xticks([])
+    ax[0].set_yticks([])
+    plt.tight_layout()
+    if not os.path.isdir('images'):
+        os.makedirs('images')
+    plt.savefig('images/synthetic_%d.png' % epoch)
 
 def main(generator, discriminator, dataloader, device, config):
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
@@ -83,16 +120,12 @@ def main(generator, discriminator, dataloader, device, config):
             d_loss.backward()
             optimizer_D.step()
 
-            print(
-                "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
-                % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
-            )
-
-            batches_done = epoch * len(dataloader) + i
-            # if batches_done % opt.sample_interval == 0:
-            if not os.path.isdir('images'):
-                os.makedirs('images')
-            save_image(gen_imgs.data[:25], "images/%d.png" % batches_done, nrow=5, normalize=True)
+            if i % config.print_freq == 0:
+                logging.info(
+                    f'Epoch [{epoch}][{i}/{len(dataloader)}] [D loss: {d_loss.item():.4f}] [G loss: {g_loss.item():.4f}]'
+                )
+        
+        save_image(gen_imgs.data[:25], epoch)
 
 
 if __name__ == "__main__":

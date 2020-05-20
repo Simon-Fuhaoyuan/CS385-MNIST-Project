@@ -3,6 +3,7 @@ MNIST/
 Project 1.pdf
 weights/
 log/
+images/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
