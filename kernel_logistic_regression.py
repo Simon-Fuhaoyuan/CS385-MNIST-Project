@@ -5,11 +5,11 @@ import os
 from tqdm import tqdm
 
 TRAIN_SAMPLES = 1000
-TEST_SAMPLES = 1000
+TEST_SAMPLES = 160
 PIXELS = 28 * 28
 
-def train(x, kernel, y, c, regular, lr, epoch, num_samples=TRAIN_SAMPLES):
-    assert x.shape[0] == c.shape[0]
+def train(kernel, y, c, regular, lr, epoch, num_samples=TRAIN_SAMPLES):
+    assert kernel.shape[0] == c.shape[0]
     gradient = np.zeros(c.shape)
     for i in range(num_samples):
         value = (c * kernel[i]).sum()
@@ -17,16 +17,12 @@ def train(x, kernel, y, c, regular, lr, epoch, num_samples=TRAIN_SAMPLES):
     gradient = gradient + 2 * regular * np.dot(kernel, c.T)
     c = c - lr * gradient
 
-    weight = np.zeros(x.shape[1])
-    for i in range(num_samples):
-        weight = weight + c[i] * x[i]
+    return c
 
-    return c, weight
-
-def test(x, y, weight, epoch, num_samples=TEST_SAMPLES):
+def test(kernel, y, c, epoch, num_samples=TEST_SAMPLES):
     num_correct = 0
     for i in range(num_samples):
-        value = (x[i] * weight).sum()
+        value = (c * kernel[i]).sum()
         probability = 1 / (1 + exp(-1 * value))
         if probability > 0.5 and y[i] == 1:
             num_correct += 1
@@ -37,13 +33,13 @@ def test(x, y, weight, epoch, num_samples=TEST_SAMPLES):
     # print('Epoch[%d]'%epoch, accuracy)
     return accuracy
 
-def multi_test(x, y, weights, num_samples=TEST_SAMPLES):
+def multi_test(kernel, y, weights, num_samples=TEST_SAMPLES):
     num_correct = 0
     for i in range(num_samples):
         best_p = 0.0
         pred_digit = 0
         for j in range(10):
-            value = (x[i] * weights[j]).sum()
+            value = (kernel[i] * weights[j]).sum()
             probability = 1 / (1 + exp(-1 * value))
             if probability > best_p:
                 pred_digit = j
@@ -53,42 +49,33 @@ def multi_test(x, y, weights, num_samples=TEST_SAMPLES):
     
     return num_correct / num_samples
 
-def construct_kernel_matrix(x, kernel_function='rbf', sigma=1, d=2):
-    n_samples = x.shape[0]
-    kernel = np.zeros((n_samples, n_samples))
+def construct_kernel_matrix(x_train, x_test, kernel_function='rbf', sigma=1, d=2):
+    train_samples = x_train.shape[0]
+    test_samples = x_test.shape[0]
+    kernel = np.zeros((test_samples, train_samples))
     if kernel_function == 'rbf':
-        for i in tqdm(range(n_samples)):
-            for j in range(i, n_samples):
-                norm = np.linalg.norm(x[i] - x[j]) ** 2
+        for i in tqdm(range(test_samples)):
+            for j in range(train_samples):
+                norm = np.linalg.norm(x_test[i] - x_train[j]) ** 2
                 value = exp(-1 * norm / (2 * (sigma ** 2)))
                 kernel[i][j] = value
-                kernel[j][i] = value
     
     elif kernel_function == 'poly':
-        for i in tqdm(range(n_samples)):
-            for j in range(i, n_samples):
-                norm = (x[i] * x[j]).sum()
+        for i in tqdm(range(test_samples)):
+            for j in range(train_samples):
+                norm = (x_test[i] * x_train[j]).sum()
                 value = norm ** d
                 kernel[i][j] = value
-                kernel[j][i] = value
 
     elif kernel_function == 'cos':
-        for i in tqdm(range(n_samples)):
-            for j in range(i, n_samples):
-                norm1 = np.linalg.norm(x[i])
-                norm2 = np.linalg.norm(x[j])
-                value = (x[i] * x[j]).sum() / (norm1 * norm2)
+        for i in tqdm(range(test_samples)):
+            for j in range(train_samples):
+                norm1 = np.linalg.norm(x_test[i])
+                norm2 = np.linalg.norm(x_train[j])
+                value = (x_test[i] * x_train[j]).sum() / (norm1 * norm2)
                 kernel[i][j] = value
-                kernel[j][i] = value
     
     return kernel
-
-def construct_kernel_x(x, kernel_function='cos'):
-    n_samples = x.shape[0]
-    for i in range(n_samples):
-        x[i] = x[i] / np.linalg.norm(x[i])
-
-    return x
 
 def main():
     # load data
@@ -107,13 +94,13 @@ def main():
     # normalize
     x_train = (x_train / 255).astype(np.float32)
     x_test = (x_test / 255).astype(np.float32)
-    kernel_matrix = construct_kernel_matrix(x_train, kernel_function='cos')
-    x_train = construct_kernel_x(x_train)
-    x_test = construct_kernel_x(x_test)
+    kernel_fun = 'rbf'
+    kernel_matrix_train = construct_kernel_matrix(x_train, x_train, kernel_function=kernel_fun)
+    kernel_matrix_test = construct_kernel_matrix(x_train, x_test, kernel_function=kernel_fun)
     print('Data preparation complete!')
 
     # hyper parameters
-    lr = 0.0001
+    lr = 0.00005
     epoch = 50
     print_freq = 10
     regular = 0.25
@@ -126,10 +113,9 @@ def main():
     for j in range(10):
         print('Training for digit %d' % j)
         weight_file = os.path.join(model_prefix, '%d.npy'%j)
-        c = np.zeros(kernel_matrix.shape[0])
-        weight = np.zeros(x_train.shape[1])
+        c = np.zeros(kernel_matrix_train.shape[0])
         best_accuracy = 0
-        best_weight = weight
+        best_weight = c
         # deal with soft label
         target_digit = j
         label_train = (y_train == target_digit).astype(np.int32)
@@ -138,11 +124,11 @@ def main():
         label_test = label_test * 2 - 1
 
         for i in range(epoch):
-            c, weight = train(x_train, kernel_matrix, label_train, c, regular, lr, i)
-            accuracy = test(x_test, label_test, weight, i)
+            c = train(kernel_matrix_train, label_train, c, regular, lr, i)
+            accuracy = test(kernel_matrix_test, label_test, c, i)
             if accuracy > best_accuracy:
                 best_accuracy = accuracy
-                best_weight = weight
+                best_weight = c
             if i > 0 and i % print_freq == 0:
                 print('Epoch[%d/%d]'%(i, epoch), 'current accuracy: %.4f'%accuracy)
         
@@ -150,7 +136,7 @@ def main():
         np.save(weight_file, best_weight)
         print('Finish training for digit %d, best accuracy %.4f\n' % (j, best_accuracy))
     
-    final_accuracy = multi_test(x_test, y_test, weights)
+    final_accuracy = multi_test(kernel_matrix_test, y_test, weights)
     print('Final accuracy:', final_accuracy)
 
 
