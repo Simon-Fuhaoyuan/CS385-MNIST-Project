@@ -57,8 +57,9 @@ def parser_args():
     args = parser.parse_args()
     return args
 
-def save_image(imgs, epoch):
+def save_image(imgs, epoch, index):
     imgs = imgs.detach().cpu().numpy()
+    imgs = (imgs + 1) / 2
     imgs = imgs * 255
     fig, ax = plt.subplots(
         nrows=5,
@@ -76,7 +77,7 @@ def save_image(imgs, epoch):
     plt.tight_layout()
     if not os.path.isdir('images'):
         os.makedirs('images')
-    plt.savefig('images/synthetic_%d.png' % epoch)
+    plt.savefig('images/synthetic_%d_%d.png' % (epoch, index))
 
 def main(generator, discriminator, dataloader, device, config):
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
@@ -87,6 +88,7 @@ def main(generator, discriminator, dataloader, device, config):
 
     for epoch in range(config.epoch):
         for i, (imgs, _1, _2, _3) in enumerate(dataloader):
+            imgs = (imgs - 0.5) / 0.5
             valid = Variable(Tensor(imgs.size(0), 1).fill_(1.0), requires_grad=False)
             fake = Variable(Tensor(imgs.size(0), 1).fill_(0.0), requires_grad=False)
             real_imgs = Variable(imgs.type(Tensor))
@@ -124,8 +126,8 @@ def main(generator, discriminator, dataloader, device, config):
                 logging.info(
                     f'Epoch [{epoch}][{i}/{len(dataloader)}] [D loss: {d_loss.item():.4f}] [G loss: {g_loss.item():.4f}]'
                 )
-        
-        save_image(gen_imgs.data[:25], epoch)
+            if i % 100 == 0:
+                save_image(gen_imgs.data[:25], epoch, i)
 
 
 if __name__ == "__main__":

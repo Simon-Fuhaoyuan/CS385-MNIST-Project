@@ -27,7 +27,7 @@ class Generator(nn.Module):
             *block(256, 512),
             *block(512, 1024),
             nn.Linear(1024, int(np.prod(self.img_shape))),
-            nn.Sigmoid()
+            nn.Tanh()
         )
 
     def forward(self, z):
