@@ -63,9 +63,11 @@ class Mnist(Dataset):
                 for j in range(block_num):
                     buffer.append(img[i*block_size:(i+1)*block_size, j*block_size:(j+1)*block_size])
             random.shuffle(buffer)
+            img_new = np.zeros((self.resolution, self.resolution, 1))
             for i in range(block_num):
                 for j in range(block_num):
-                    img[i*block_size:(i+1)*block_size, j*block_size:(j+1)*block_size] = buffer[block_num * i + j]
+                    img_new[i*block_size:(i+1)*block_size, j*block_size:(j+1)*block_size] = buffer[block_num * i + j]
+            img = img_new
 
         elif self.cfg.exp2:
             assert self.cfg.in_channel == 3, 'In exp1, the input channel should be 3, but get %d' % (self.cfg.in_channel)
