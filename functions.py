@@ -96,6 +96,8 @@ def tSNE(x, y, digits, n_components=2):
     plt.xticks([])
     plt.yticks([])
     plt.legend()
+    if not os.path.isdir('images'):
+        os.makedirs('images')
     plt.savefig('images/%dand%d.png' % (digits[0], digits[1]))
 
 

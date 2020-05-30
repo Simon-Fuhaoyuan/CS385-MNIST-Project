@@ -58,6 +58,8 @@ def main(net, loader, device, config):
     net.load_state_dict(torch.load(checkpoint))
     X = None
     Y = None
+    total_correct = 0
+    total_cnt = 0
     for i, (img, label, _1, _2) in enumerate(loader):
         img = img.to(device)
         pred, feature = net(img)
@@ -66,7 +68,7 @@ def main(net, loader, device, config):
         total_cnt += cnt
         if i % config.print_freq == 0:
             logging.info(
-                f'Epoch[{epoch}][{i}/{len(test_loader)}], Test accuracy: {n_correct / cnt:.3f}({total_correct / total_cnt:.3f})'
+                f'Test[{i}/{len(test_loader)}], Test accuracy: {n_correct / cnt:.3f}({total_correct / total_cnt:.3f})'
             )
         
         feature = feature.cpu().detach().numpy()
@@ -85,6 +87,7 @@ def main(net, loader, device, config):
     print(X.shape)
     print('Start visualize features in t-SNE...')
     tSNE(X, Y, [4, 9])
+    print('Final test accuracy: %.4f' % (total_correct / total_cnt))
 
 
 if __name__ == '__main__':
