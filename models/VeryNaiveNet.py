@@ -22,10 +22,11 @@ class VeryNaiveNet(nn.Module):
         x = self.features(x)
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
+        feature = x
         x = self.classifier(x)
         if self.opt.loss != 'crossentropy':
             x = self.final_layer(x)
-        return x
+        return x, feature
 
     def _initialize_weights(self):
         for m in self.modules():
