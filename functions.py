@@ -4,15 +4,20 @@ import argparse
 import logging
 import numpy as np
 from time import time
+import matplotlib
+matplotlib.use('AGG')
+import matplotlib.pyplot as plt
+from sklearn import manifold
 
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
 import torch.optim as optim
+
 from MnistDataLoader import Mnist
 from evaluate import accuracy
 import models
-
+from MnistData import load_mnist
 
 ch = logging.StreamHandler(sys.stdout)
 logging.getLogger().setLevel(logging.INFO)
@@ -70,4 +75,40 @@ def get_criterion(config):
         exit()
 
     return crit
+
+color = ['r', 'g', 'b', 'y']
+
+def tSNE(x, y, digits, n_components=2):
+    tsne = manifold.TSNE(n_components=n_components, init='pca', random_state=501)
+    X_tsne = tsne.fit_transform(x)
+
+    print("Org data dimension is {}. Embedded data dimension is {}".format(x.shape[-1], X_tsne.shape[-1]))
+
+    x_min, x_max = X_tsne.min(0), X_tsne.max(0)
+    X_norm = (X_tsne - x_min) / (x_max - x_min)  # normalize
+    plt.figure()
     
+    for i, (digit) in enumerate(digits):
+        X = X_norm[y == digit][: , 0]
+        Y = X_norm[y == digit][: , 1]
+        plt.scatter(X, Y, s=20, c=color[i], label='digit %d'%digit)
+    
+    plt.xticks([])
+    plt.yticks([])
+    plt.legend()
+    plt.savefig('images/%dand%d.png' % (digits[0], digits[1]))
+
+
+if __name__ == "__main__":
+    x, y = load_mnist(kind='t10k')
+
+    x_4 = x[y==4]
+    y_4 = y[y==4]
+    x_9 = x[y==9]
+    y_9 = y[y==9]
+
+    x_group = np.concatenate((x_4, x_9), axis=0)
+    y_group = np.concatenate((y_4, y_9), axis=0)
+
+    # print(y_group)
+    tSNE(x_group, y_group.astype(np.uint8), [4,9])
