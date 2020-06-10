@@ -12,8 +12,10 @@ def test(x, y, weight, bias, num_samples=TEST_SAMPLES):
     pred = np.dot(x, weight.T) + bias
     pred = (pred > 0).astype(np.uint8)
     num_correct = (pred == y).sum()
+    ## recall
+    recall = 1 - (pred < y).sum() / y.sum()
 
-    return num_correct / num_samples
+    return num_correct / num_samples, recall
 
 def multi_test(x, y, weights, bias, num_samples=TEST_SAMPLES):
     num_correct = 0
@@ -30,12 +32,20 @@ def multi_test(x, y, weights, bias, num_samples=TEST_SAMPLES):
     
     return num_correct / num_samples
 
-def cal_LDA_bias(digit, x, y, weight):
+def cal_LDA_bias(digit, x, y, weight, lamb=0):
     x_pos = x[y == digit]
     x_neg = x[y != digit]
-    mean_pos = np.dot(x_pos, weight.T).mean()
-    mean_neg = np.dot(x_neg, weight.T).mean()
-    bias = (mean_neg + mean_pos) / -2
+    pred_pos = np.dot(x_pos, weight.T)
+    pred_neg = np.dot(x_neg, weight.T)
+
+    mean_pos = pred_pos.mean()
+    mean_neg = pred_neg.mean()
+    std_pos = np.std(pred_pos)
+    std_neg = np.std(pred_neg)
+
+    if lamb < 0:
+        lamb = std_neg / (std_neg + std_pos)
+    bias = -1 * (lamb * mean_pos + (1 - lamb) * mean_neg)
 
     return bias
 
@@ -79,10 +89,11 @@ def main():
         target_digit = j
         label_test = (y_test == target_digit).astype(np.uint8)
         weight = cal_LDA_weight(target_digit, x_train, y_train)
-        bias = cal_LDA_bias(target_digit, x_train, y_train, weight)
-        accuracy = test(x_test, label_test, weight, bias)
-        print(accuracy)
-        
+        bias = cal_LDA_bias(target_digit, x_train, y_train, weight, lamb=0.6)
+        accuracy, recall = test(x_test, label_test, weight, bias)
+        # print('acc', accuracy)
+        print('rec', recall)
+
         weights.append(weight)
         biases.append(bias)
         np.save(weight_file, weight)

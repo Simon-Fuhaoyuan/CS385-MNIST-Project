@@ -5,7 +5,7 @@ import os
 from tqdm import tqdm
 
 TRAIN_SAMPLES = 1000
-TEST_SAMPLES = 160
+TEST_SAMPLES = 480
 PIXELS = 28 * 28
 
 def train(kernel, y, c, regular, lr, epoch, num_samples=TRAIN_SAMPLES):
@@ -100,7 +100,7 @@ def main():
     print('Data preparation complete!')
 
     # hyper parameters
-    lr = 0.00005
+    lr = 0.001
     epoch = 50
     print_freq = 10
     regular = 0.25
