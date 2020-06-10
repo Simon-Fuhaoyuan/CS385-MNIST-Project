@@ -76,7 +76,7 @@ def get_criterion(config):
 
     return crit
 
-color = ['r', 'g', 'b', 'y']
+color = ['pink', 'red', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'violet', 'purple']
 
 def tSNE(x, y, digits, n_components=2):
     tsne = manifold.TSNE(n_components=n_components, init='pca', random_state=501)
@@ -95,10 +95,12 @@ def tSNE(x, y, digits, n_components=2):
     
     plt.xticks([])
     plt.yticks([])
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05, 0), loc=3, borderaxespad=0)
     if not os.path.isdir('images'):
         os.makedirs('images')
-    plt.savefig('images/%dand%d.png' % (digits[0], digits[1]))
+    plt.tight_layout()
+    plt.savefig('images/10-cate.png')
+    # plt.show()
 
 
 if __name__ == "__main__":
@@ -113,4 +115,4 @@ if __name__ == "__main__":
     y_group = np.concatenate((y_4, y_9), axis=0)
 
     # print(y_group)
-    tSNE(x_group, y_group.astype(np.uint8), [4,9])
+    tSNE(x_group, y_group.astype(np.uint8), [4, 9])
