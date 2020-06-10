@@ -73,20 +73,30 @@ def main(net, loader, device, config):
         
         feature = feature.cpu().detach().numpy()
         label = label.cpu().detach().numpy()
+        # if X is None:
+        #     X = feature[label == 4]
+        #     Y = label[label == 4]
+        #     X = np.concatenate((X, feature[label == 9]), axis=0)
+        #     Y = np.concatenate((Y, label[label == 9]), axis=0)
+        # else:
+        #     X = np.concatenate((X, feature[label == 4]), axis=0)
+        #     Y = np.concatenate((Y, label[label == 4]), axis=0)
+        #     X = np.concatenate((X, feature[label == 9]), axis=0)
+        #     Y = np.concatenate((Y, label[label == 9]), axis=0)
         if X is None:
-            X = feature[label == 4]
-            Y = label[label == 4]
-            X = np.concatenate((X, feature[label == 9]), axis=0)
-            Y = np.concatenate((Y, label[label == 9]), axis=0)
+            X = feature
+            Y = label
+            X = np.concatenate((X, feature), axis=0)
+            Y = np.concatenate((Y, label), axis=0)
         else:
-            X = np.concatenate((X, feature[label == 4]), axis=0)
-            Y = np.concatenate((Y, label[label == 4]), axis=0)
-            X = np.concatenate((X, feature[label == 9]), axis=0)
-            Y = np.concatenate((Y, label[label == 9]), axis=0)
+            X = np.concatenate((X, feature), axis=0)
+            Y = np.concatenate((Y, label), axis=0)
+            X = np.concatenate((X, feature), axis=0)
+            Y = np.concatenate((Y, label), axis=0)
     
     print(X.shape)
     print('Start visualize features in t-SNE...')
-    tSNE(X, Y, [4, 9])
+    tSNE(X, Y, [i for i in range(10)])
     print('Final test accuracy: %.4f' % (total_correct / total_cnt))
 
 
