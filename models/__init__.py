@@ -8,3 +8,4 @@ import models.VeryNaiveNet
 import models.LinearNet
 import models.GAN
 import models.resnet18
+import models.smallnet
