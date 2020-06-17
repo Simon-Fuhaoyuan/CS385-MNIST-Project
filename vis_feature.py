@@ -33,7 +33,7 @@ def parser_args():
     parser.add_argument('--lr', help='The learning rate', default=0.01, type=float)
     parser.add_argument('--root', help='The initial dataset root', default='./Mnist', type=str)
     parser.add_argument('--weight', help='The weight folder', default='./weights', type=str)
-    parser.add_argument('--model', help='The architecture of CNN', default='VeryNaiveNet', type=str)
+    parser.add_argument('--model', help='The architecture of CNN', default='smallnet', type=str)
     parser.add_argument('--workers', help='Number of workers when loading data', default=4, type=int)
     parser.add_argument('--print_freq', help='Number of iterations to print', default=200, type=int)
     parser.add_argument('--weight_decay', default=1e-4, type=float)
@@ -56,13 +56,13 @@ def parser_args():
 def main(net, loader, device, config):
     checkpoint = os.path.join(config.weight, config.model + '.pth')
     net.load_state_dict(torch.load(checkpoint))
-    X = None
-    Y = None
+    Xs = [None, None, None, None]
+    Ys = [None, None, None, None]
     total_correct = 0
     total_cnt = 0
     for i, (img, label, _1, _2) in enumerate(loader):
         img = img.to(device)
-        pred, feature = net(img)
+        pred, features = net(img)
         n_correct, cnt = accuracy(pred, label)
         total_correct += n_correct
         total_cnt += cnt
@@ -71,32 +71,21 @@ def main(net, loader, device, config):
                 f'Test[{i}/{len(test_loader)}], Test accuracy: {n_correct / cnt:.3f}({total_correct / total_cnt:.3f})'
             )
         
-        feature = feature.cpu().detach().numpy()
         label = label.cpu().detach().numpy()
-        # if X is None:
-        #     X = feature[label == 4]
-        #     Y = label[label == 4]
-        #     X = np.concatenate((X, feature[label == 9]), axis=0)
-        #     Y = np.concatenate((Y, label[label == 9]), axis=0)
-        # else:
-        #     X = np.concatenate((X, feature[label == 4]), axis=0)
-        #     Y = np.concatenate((Y, label[label == 4]), axis=0)
-        #     X = np.concatenate((X, feature[label == 9]), axis=0)
-        #     Y = np.concatenate((Y, label[label == 9]), axis=0)
-        if X is None:
-            X = feature
-            Y = label
-            X = np.concatenate((X, feature), axis=0)
-            Y = np.concatenate((Y, label), axis=0)
-        else:
-            X = np.concatenate((X, feature), axis=0)
-            Y = np.concatenate((Y, label), axis=0)
-            X = np.concatenate((X, feature), axis=0)
-            Y = np.concatenate((Y, label), axis=0)
+        for i in range(4):
+            feature = features[i].cpu().detach().numpy()
+            if Xs[i] is None:
+                Xs[i] = feature
+                Ys[i] = label
+            else:
+                Xs[i] = np.concatenate((Xs[i], feature), axis=0)
+                Ys[i] = np.concatenate((Ys[i], label), axis=0)
     
-    print(X.shape)
-    print('Start visualize features in t-SNE...')
-    tSNE(X, Y, [i for i in range(10)])
+    for i in range(4):
+        print(Xs[i].shape)
+        print('Start visualize feature %d in t-SNE...' % i)
+        tSNE(Xs[i], Ys[i], [j for j in range(10)], 'feature%d'%i)
+    
     print('Final test accuracy: %.4f' % (total_correct / total_cnt))
 
 

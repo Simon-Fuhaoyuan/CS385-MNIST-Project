@@ -79,7 +79,7 @@ def get_criterion(config):
 
 color = ['pink', 'red', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'violet', 'purple']
 
-def tSNE(x, y, digits, n_components=2):
+def tSNE(x, y, digits, name, n_components=2):
     tsne = manifold.TSNE(n_components=n_components, init='pca', random_state=501)
     X_tsne = tsne.fit_transform(x)
 
@@ -100,7 +100,7 @@ def tSNE(x, y, digits, n_components=2):
     if not os.path.isdir('images'):
         os.makedirs('images')
     plt.tight_layout()
-    plt.savefig('images/10-cate.png')
+    plt.savefig('images/' + name + '.png')
     # plt.show()
 
 
