@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('AGG')
 import matplotlib.pyplot as plt
 from sklearn import manifold
+import cv2
 
 import torch
 import torch.nn as nn
@@ -101,6 +102,63 @@ def tSNE(x, y, digits, n_components=2):
     plt.tight_layout()
     plt.savefig('images/10-cate.png')
     # plt.show()
+
+
+class GradCAM(object):
+    def __init__(self, i, cfg, model_dict, input, output, fmaps, target):
+        self.cfg = cfg
+        self.init_image_size = cfg.resolution
+        self.output_dir = 'images'
+        self.fmap_size = fmaps.size()[2:]
+        self.fmaps = fmaps.cpu().detach().numpy()
+        self.input = input.cpu().detach().numpy() * 255
+        self.input = np.swapaxes(self.input, 1, 2)
+        self.input = np.swapaxes(self.input, 2, 3)
+        self.output = output.cpu().detach().numpy()
+        self.grads = self._get_grads(model_dict).cpu().detach().numpy()
+        self.target = target.cpu().detach().numpy()
+        self.group = i
+    
+    def _get_grads(self, model_dict):
+        model = torch.load(model_dict)
+        grads = model['fc.weight']
+        
+        return grads
+    
+    def save(self, gcam, raw_image, id, category_id):
+        gcam = cv2.applyColorMap(np.uint8(gcam * 255.0), cv2.COLORMAP_JET)
+        gcam = gcam.astype(np.float) # + raw_image.astype(np.float)
+        if(gcam.max() != 0):
+           gcam = gcam / gcam.max() * 255.0
+        output_dir = os.path.join(self.output_dir, self.cfg.model, 'gradcam')
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        filename = '/group%d_num_%d_cat%d.png' %(self.group, id, category_id)
+        filename_init = '/group%d_num_%d.png' %(self.group, id)
+        cv2.imwrite(output_dir + filename, np.uint8(gcam))
+        cv2.imwrite(output_dir + filename_init, np.uint8(raw_image))
+        # np.save(output_dir + filename, gcam)
+        # np.save(output_dir + filename_init, raw_image)
+
+    def generate(self):
+        for i in range(self.fmaps.shape[0]): # batch size
+            gcam = np.zeros((self.fmap_size[0], self.fmap_size[1]))
+            category_id = np.argmax(self.output[i])
+            target_id = self.target[i]
+            if not category_id == target_id:
+                continue
+            raw_image = self.input[i]
+            for j in range(self.fmaps.shape[1]):
+                fmap = self.fmaps[i][j]
+                grad = self.grads[category_id][j]
+                gcam += fmap * grad
+
+            gcam -= gcam.min()
+            if(gcam.max() != 0):
+                gcam /= gcam.max()
+            gcam = cv2.resize(gcam, (self.init_image_size, self.init_image_size))
+            self.save(gcam, raw_image, i, category_id)
+        print('Group %d finish!' % self.group)
 
 
 if __name__ == "__main__":
