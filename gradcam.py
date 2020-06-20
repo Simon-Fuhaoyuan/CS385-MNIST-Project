@@ -34,7 +34,7 @@ def parser_args():
     parser.add_argument('--lr', help='The learning rate', default=0.01, type=float)
     parser.add_argument('--root', help='The initial dataset root', default='./Mnist', type=str)
     parser.add_argument('--weight', help='The weight folder', default='./weights', type=str)
-    parser.add_argument('--model', help='The architecture of CNN', default='resnet18', type=str)
+    parser.add_argument('--model', help='The architecture of CNN', default='smallnet', type=str)
     parser.add_argument('--workers', help='Number of workers when loading data', default=4, type=int)
     parser.add_argument('--print_freq', help='Number of iterations to print', default=200, type=int)
     parser.add_argument('--weight_decay', default=1e-4, type=float)

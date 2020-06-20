@@ -12,7 +12,7 @@ import torch.optim as optim
 from MnistDataLoader import Mnist
 from evaluate import accuracy
 import models
-from functions import tSNE
+from functions import tSNE, pca
 
 
 ch = logging.StreamHandler(sys.stdout)
@@ -84,7 +84,9 @@ def main(net, loader, device, config):
     for i in range(4):
         print(Xs[i].shape)
         print('Start visualize feature %d in t-SNE...' % i)
-        tSNE(Xs[i], Ys[i], [j for j in range(10)], 'feature%d'%i)
+        tSNE(Xs[i], Ys[i], [j for j in range(10)], 'feature%d_tsne'%i)
+        # print('Start visualize feature %d in PCA...' % i)
+        # pca(Xs[i], Ys[i], [j for j in range(10)], 'feature%d_pca'%i)
     
     print('Final test accuracy: %.4f' % (total_correct / total_cnt))
 

@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('AGG')
 import matplotlib.pyplot as plt
 from sklearn import manifold
+from sklearn.decomposition import PCA
 import cv2
 
 import torch
@@ -103,6 +104,32 @@ def tSNE(x, y, digits, name, n_components=2):
     plt.savefig('images/' + name + '.png')
     # plt.show()
 
+def pca(x, y, digits, name, n_components=2):
+    pca_ = PCA(n_components=3)
+    X_pca = pca_.fit_transform(x)
+
+    print("Org data dimension is {}. Embedded data dimension is {}".format(x.shape[-1], X_pca.shape[-1]))
+
+    x_min, x_max = X_pca.min(0), X_pca.max(0)
+    X_norm = (X_pca - x_min) / (x_max - x_min)  # normalize
+    fig = plt.figure()
+    
+    ax = fig.gca(projection='3d')
+    for i, (digit) in enumerate(digits):
+        X = X_norm[y == digit][: , 0]
+        Y = X_norm[y == digit][: , 1]
+        Z = X_norm[y == digit][: , 2]
+        ax.scatter(X, Y, Z, s=20, c=color[i], label='digit %d'%digit)
+    
+    plt.xticks([])
+    plt.yticks([])
+    plt.legend(bbox_to_anchor=(1.05, 0), loc=3, borderaxespad=0)
+    if not os.path.isdir('images'):
+        os.makedirs('images')
+    plt.tight_layout()
+    plt.savefig('images/' + name + '_pca.png')
+    # plt.show()
+
 
 class GradCAM(object):
     def __init__(self, i, cfg, model_dict, input, output, fmaps, target):
@@ -121,7 +148,7 @@ class GradCAM(object):
     
     def _get_grads(self, model_dict):
         model = torch.load(model_dict)
-        grads = model['fc.weight']
+        grads = model['classifier.weight']
         
         return grads
     
