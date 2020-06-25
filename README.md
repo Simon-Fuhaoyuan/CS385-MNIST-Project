@@ -56,3 +56,25 @@ ResNet18 | 0.9959 | \
 ## Generative Adversarial Network
 
 ![The changing quality of generated images as the number of epochs increases.](doc/gan.PNG)
+
+## Feature visualization and Grad-CAM
+
+### Structure of VeryNaiveNet with Feature Visualization
+![Feature Vis](doc/all_features.PNG)
+
+### The data flow of GradCAM
+![Gradcam](doc/gradcam.PNG)
+
+### Some GradCAM results
+![saliency_maps](doc/saliency_map.PNG)
+
+## Experiments
+
+### Kernel logistic regression with dierent number of samples
+
+### The bias term in LDA
+
+### The full potential in CNN
+
+* Partition an image into some blocks (4 x 4 in report), and random shuffle these blocks.
+* For each pixel, concate its x and y coordinates to the image's 2nd and 3rd channel, so that the input images are 3-channel.
