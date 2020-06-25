@@ -55,4 +55,4 @@ ResNet18 | 0.9959 | \
 
 ## Generative Adversarial Network
 
-![The changing quality of generated images as the number of epochs increases.](images/gan.PNG)
+![The changing quality of generated images as the number of epochs increases.](doc/gan.PNG)
