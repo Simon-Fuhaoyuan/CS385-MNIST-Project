@@ -24,5 +24,35 @@ The following are CNN architectures that I have implemented using [pytorch](http
 
 * VGG11
 * NaiveNet (which consists of 2 conv layers and two fc layers)
+* VeryNaiveNet (which consists of 2 conv layers, with global pooling and an fc layer)
+* LinearNet (which only consists of 1 linear layer)
+* ResNet18
 
-Keep updating...
+## Performance
+
+For the limit of space, I only show the final 10-category results here, and omit per-category accuracy in traditional methods. 
+
+Method | Accuracy | remark
+:--: | :--: | :--:
+Logistic Regression | 0.8821 | Initial
+Logistic Regression | 0.8836 | Ridge loss
+Logistic Regression | 0.8890 | Lasso loss
+Logistic Regression | 0.8802 | Lasso + batch
+Kernel Regression | 0.8312 | Ridge + RBF
+Kernel Regression | 0.6062 | Ridge + COS
+Kernel Regression | 0.8062 | Lasso + RBF
+Kernel Regression | 0.5687 | Lasso + COS
+LDA | 0.8080 | \
+SVM | 0.8880 | Linear
+SVM | 0.9380 | RBF
+SVM | 0.9250 | Poly
+SVM | 0.832 | Sigmoid
+LinearNet | 0.9149 | \
+VeryNaiveNet | 0.9845 | \
+NaiveNet | 0.9910 | \
+VGG11 | 0.9935 | \
+ResNet18 | 0.9959 | \
+
+## Generative Adversarial Network
+
+![The changing quality of generated images as the number of epochs increases.](images/gan.PNG)
