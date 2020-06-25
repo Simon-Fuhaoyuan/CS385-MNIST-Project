@@ -70,7 +70,7 @@ ResNet18 | 0.9959 | \
 
 ## Experiments
 
-### Kernel logistic regression with dierent number of samples
+### Kernel logistic regression with different number of samples
 
 ### The bias term in LDA
 
